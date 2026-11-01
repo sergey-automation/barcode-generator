@@ -1,0 +1,74 @@
+BARCODE NUMBER FORMATION REFERENCE
+
+Current internal structure:
+
+PP | BBB | NNNNNNN | C
+
+PP = two-digit internal prefix.
+BBB = three-digit internal shift/supervisor code.
+NNNNNNN = seven-digit item number from a separate product register.
+C = EAN-13 check digit.
+
+Example:
+20 | 627 | 0000001 | C
+→ 2062700000016
+
+SHIFT CODE
+
+Any unique internal value 000–999 may be used.
+
+A mnemonic option:
+first three Latin letters of the name → T9 keypad digits.
+
+MAR → 627
+TAT → 828
+NAT → 628
+
+This is an internal company convention, not a GS1 rule.
+
+ITEM NUMBER
+
+NNNNNNN is an item identifier from a separate product register.
+
+Batch generation increments only this field:
+0000001
+0000002
+0000003
+...
+
+The check digit is recalculated each time.
+
+EAN-13 CHECK DIGIT
+
+For the first 12 digits D1...D12:
+
+S = (D1+D3+D5+D7+D9+D11)
+  + 3×(D2+D4+D6+D8+D10+D12)
+
+C = (10 - (S mod 10)) mod 10
+
+C is always digit 13.
+
+INTERNAL NUMBER VS EXTERNAL GTIN
+
+The current scheme is for internal numbering.
+It does not issue an official globally unique GTIN.
+
+If an external GTIN is later assigned, do not try to convert the internal
+number by changing only one digit.
+
+All first 12 digits may change:
+
+1. The internal PP prefix may change completely.
+2. BBB normally does not belong inside the external GTIN.
+3. The internal NNNNNNN item number may be replaced by an external item reference.
+4. The 13th check digit C is recalculated from the new first 12 digits.
+
+Shift, batch and production traceability should then normally be kept separately:
+LOT / SERIE, production date, internal database, or additional marking.
+
+IMPORTANT
+
+Restricted Circulation Number structures may depend on local GS1 rules.
+For external trade, use an officially assigned GTIN and the GS1 rules
+applicable to your organisation and country.
