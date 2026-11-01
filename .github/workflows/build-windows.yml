@@ -1,0 +1,64 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+    paths:
+      - "source/**"
+      - "release_ru/barcode_generator.xlsx"
+      - "release_ru/REFERENCE_RU.txt"
+      - "release_en/barcode_generator.xlsx"
+      - "release_en/REFERENCE_EN.txt"
+      - ".github/workflows/build-windows.yml"
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install PyInstaller
+        run: python -m pip install --upgrade pyinstaller
+
+      - name: Build EXE
+        working-directory: source
+        run: python -m PyInstaller --noconfirm --clean --onefile --console --name barcode_generator barcode_generator.py
+
+      - name: Prepare RU package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path build_release_ru | Out-Null
+          Copy-Item source/dist/barcode_generator.exe build_release_ru/
+          Copy-Item release_ru/barcode_generator.xlsx build_release_ru/
+          Copy-Item release_ru/REFERENCE_RU.txt build_release_ru/
+
+      - name: Prepare EN package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path build_release_en | Out-Null
+          Copy-Item source/dist/barcode_generator.exe build_release_en/
+          Copy-Item release_en/barcode_generator.xlsx build_release_en/
+          Copy-Item release_en/REFERENCE_EN.txt build_release_en/
+
+      - name: Upload RU package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Barcode-Generator-RU
+          path: build_release_ru/
+
+      - name: Upload EN package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Barcode-Generator-EN
+          path: build_release_en/
